@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Travel Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.5.2/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transition: left 0.3s ease;
+    }
+    #map.sidebar-open {
+      left: 250px;
+    }
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1002;  /* Increase z-index value */
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background-color: #f8f9fa;
+    }
+    #sidebar::-webkit-scrollbar {
+      width: 0.5em;
+    }
+    #sidebar::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    }
+    #sidebar::-webkit-scrollbar-thumb {
+      background-color: darkgrey;
+      outline: 1px solid slategrey;
+    }
+  </style>
+  <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
+  <script src="https://unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue.js"></script>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
+  <script src="places.js"></script>
+</head>
+<body>
+  <div id="app">
+    <b-navbar toggleable="lg" type="dark" variant="info">
+      <b-navbar-brand href="#">My Travel Map</b-navbar-brand>
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav>
+          <b-nav-item @click="sidebarOpen = !sidebarOpen">Toggle Sidebar</b-nav-item>
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
+
+    <b-sidebar id="sidebar" title="Choose List" :visible="sidebarOpen" @change="handleSidebarChange" @hidden="sidebarOpen = false" bg-variant="dark" text-variant="light">
+      <b-form-checkbox v-model="showList1" switch inline class="text-light">List 1</b-form-checkbox>
+      <b-form-checkbox v-model="showList2" switch inline class="text-light">List 2</b-form-checkbox>
+    </b-sidebar>
+
+    <div id="map" :class="{ 'sidebar-open': sidebarOpen }"></div>
+  </div>
+
+  <script>
+    new Vue({
+    el: '#app',
+    data: {
+      sidebarOpen: false,
+      showList1: true,
+      showList2: false,
+      map: null,
+      places1: [],  // Store first set of places here
+      places2: [],  // Store second set of places here
+      markers1: [],  // Store first set of markers here
+      markers2: []  // Store second set of markers here
+    },
+    methods: {
+      handleSidebarChange(value) {
+        this.sidebarOpen = value;
+      }
+    },
+    mounted() {
+      this.map = L.map('map').setView([51.505, -0.09], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(this.map);
+
+      // Load data from places.js file
+      this.places1 = window.places1;
+      this.places2 = window.places2;
+
+      // Add markers for both sets of places
+      this.addMarkers(this.places1, this.markers1);
+      this.addMarkers(this.places2, this.markers2);
+      },
+    watch: {
+      showList1(newVal, oldVal) {
+        if (newVal === oldVal) return;
+
+        // Toggle visibility of markers for the first set of places
+        this.toggleMarkers(this.markers1, newVal);
+      },
+      showList2(newVal, oldVal) {
+        if (newVal === oldVal) return;
+
+        // Toggle visibility of markers for the second set of places
+        this.toggleMarkers(this.markers2, newVal);
+      }
+      },
+    methods: {
+      handleSidebarChange(value) {
+        this.sidebarOpen = value;
+      },
+      addMarkers(places, markers) {
+        // Add a marker for each place
+        places.forEach(place => {
+          let marker = L.marker([place.lat, place.lng]).addTo(this.map);
+          let popup = L.popup({minWidth: 360}).setContent(
+            `<div id="${place.name}" class="juxtapose">
+            </div>
+            <b>${place.name}</b><br>${place.description}
+            <a href="details.html?place=${place.name}" class="details-button">Details</a>`
+          );
+          marker.bindPopup(popup);
+          marker.on('popupopen', () => {
+            new juxtapose.JXSlider('#' + place.name,
+            [
+              {
+                  src: place.img1,
+                  label: '2009',
+                  credit: 'Image Credit'
+              },
+              {
+                  src: place.img2,
+                  label: '2014',
+                  credit: "Image Credit"
+              }
+            ],
+            {
+              animate: true,
+              showLabels: true,
+              showCredits: true,
+              startingPosition: "50%",
+              makeResponsive: true
+            });
+          });
+          markers.push(marker);
+        });
+      },
+      toggleMarkers(markers, show) {
+        // Show or hide each marker
+        markers.forEach(marker => {
+          if (show) {
+            marker.addTo(this.map);
+          } else {
+            this.map.removeLayer(marker);
+          }
+        });
+      }
+    }
+  });
+  </script>
+</body>
+</html>
