@@ -1,11 +1,13 @@
 window.places1 = [
   {
-    lat: 51.5,
-    lng: -0.09,
-    name: 'Place1',
-    description: 'This is the first place in List 1.',
-    img1: 'https://i.gyazo.com/c88ad334554f8a9e5631803df2616f9b.png',
-    img2: 'https://i.gyazo.com/bdd50741141a23141622a4d3b78bf83b.png'
+    lat: 50.453630,
+    lng: 30.517016,
+    name: 'StSophiCathedral',
+    description: 'St. Sophi Cathedral',
+    yearbefore: '1880',
+    yearafter: '1980',
+    img1: 'https://i.gyazo.com/915909d987b56eba16d4e586f59f7edb.png',
+    img2: 'https://i.gyazo.com/3a83cd9e0512a10112b4f77fdbe044d4.png'
   },
   {
     lat: 51.51,
