@@ -39,6 +39,26 @@ window.places1 = [
     img1: 'https://i.gyazo.com/d1a1e31a766053885c8d4dc871b29580.png',
     img2: 'https://i.gyazo.com/0238de2ed78d8026ba9b64397be48dd0.png'
   },
+  {
+    lat: 49.441614,
+    lng: 32.054734,
+    name: 'BlahovisnaSt213',
+    description: 'Blahovisna St, 213, Chercasy',
+    yearbefore: '2015',
+    yearafter: '2022',
+    img1: 'https://i.gyazo.com/9ef756fbaee04edeef429836b40567a0.png',
+    img2: 'https://i.gyazo.com/b88c39df09659d5431c5ac643ee782e7.png'
+  },
+  {
+    lat: 49.422720,
+    lng: 32.106378,
+    name: 'DobrovolskohoSt2',
+    description: 'Dobrovolskoho St, 2, Chercasy',
+    yearbefore: '2015',
+    yearafter: '2022',
+    img1: 'https://i.gyazo.com/ff7a1179ac11ca3286d17696492a6f6b.png',
+    img2: 'https://i.gyazo.com/b9895b21873f82206f12fd89b86b0a92.png'
+  },
   // More places...
 ];
 
