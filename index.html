@@ -8,42 +8,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
-  <style>
-    body, html {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-    #map {
-      position: fixed;
-      top: 60px;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      transition: left 0.3s ease;
-    }
-    #map.sidebar-open {
-      left: 250px;
-    }
-    .navbar {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1002;  /* Increase z-index value */
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      background-color: #f8f9fa;
-    }
-    #sidebar::-webkit-scrollbar {
-      width: 0.5em;
-    }
-    #sidebar::-webkit-scrollbar-track {
-      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    }
-    #sidebar::-webkit-scrollbar-thumb {
-      background-color: darkgrey;
-      outline: 1px solid slategrey;
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
   <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
   <script src="https://unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue.js"></script>
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -63,9 +29,9 @@
       </b-collapse>
     </b-navbar>
 
-    <b-sidebar id="sidebar" title="Choose List" :visible="sidebarOpen" @change="handleSidebarChange" @hidden="sidebarOpen = false" bg-variant="dark" text-variant="light">
-      <b-form-checkbox v-model="showList1" switch inline class="text-light">List 1</b-form-checkbox>
-      <b-form-checkbox v-model="showList2" switch inline class="text-light">List 2</b-form-checkbox>
+    <b-sidebar id="sidebar" title="Choose List" :visible="sidebarOpen" @change="handleSidebarChange" @hidden="sidebarOpen = false">
+      <b-form-checkbox v-model="showList1" switch inline>List 1</b-form-checkbox>
+      <b-form-checkbox v-model="showList2" switch inline>List 2</b-form-checkbox>
     </b-sidebar>
 
     <div id="map" :class="{ 'sidebar-open': sidebarOpen }"></div>
