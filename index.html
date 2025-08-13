@@ -5,6 +5,8 @@
   <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.5.2/dist/css/bootstrap.css">
   <link rel="stylesheet" href="https://unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
   <style>
     body, html {
@@ -45,6 +47,7 @@
   <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
   <script src="https://unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue.js"></script>
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
   <script src="places.js"></script>
 </head>
@@ -70,104 +73,90 @@
 
   <script>
     new Vue({
-    el: '#app',
-    data: {
-      sidebarOpen: false,
-      showList1: true,
-      showList2: false,
-      map: null,
-      places1: [],  // Store first set of places here
-      places2: [],  // Store second set of places here
-      markers1: [],  // Store first set of markers here
-      markers2: []  // Store second set of markers here
-    },
-    methods: {
-      handleSidebarChange(value) {
-        this.sidebarOpen = value;
-      }
-    },
-    mounted() {
-      this.map = L.map('map').setView([50.45, 30.52], 7);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(this.map);
-
-      // Load data from places.js file
-      this.places1 = window.places1;
-      this.places2 = window.places2;
-
-      // Add markers for both sets of places
-      this.addMarkers(this.places1, this.markers1);
-      this.addMarkers(this.places2, this.markers2);
+      el: '#app',
+      data: {
+        sidebarOpen: false,
+        showList1: true,
+        showList2: false,
+        map: null,
+        clusterGroup: null,
+        places1: [],
+        places2: [],
+        markers1: [],
+        markers2: []
       },
-    watch: {
-      showList1(newVal, oldVal) {
-        if (newVal === oldVal) return;
+      watch: {
+        showList1(newVal, oldVal) {
+          if (newVal === oldVal) return;
+          this.toggleMarkers(this.markers1, newVal);
+        },
+        showList2(newVal, oldVal) {
+          if (newVal === oldVal) return;
+          this.toggleMarkers(this.markers2, newVal);
+        }
+      },
+      mounted() {
+        this.map = L.map('map').setView([50.45, 30.52], 7);
 
-        // Toggle visibility of markers for the first set of places
-        this.toggleMarkers(this.markers1, newVal);
-      },
-      showList2(newVal, oldVal) {
-        if (newVal === oldVal) return;
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(this.map);
 
-        // Toggle visibility of markers for the second set of places
-        this.toggleMarkers(this.markers2, newVal);
-      }
+        this.clusterGroup = L.markerClusterGroup();
+        this.map.addLayer(this.clusterGroup);
+
+        this.places1 = window.places1;
+        this.places2 = window.places2;
+
+        this.addMarkers(this.places1, this.markers1);
+        this.addMarkers(this.places2, this.markers2);
+
+        this.toggleMarkers(this.markers1, this.showList1);
+        this.toggleMarkers(this.markers2, this.showList2);
       },
-    methods: {
-      handleSidebarChange(value) {
-        this.sidebarOpen = value;
-      },
-      addMarkers(places, markers) {
-        // Add a marker for each place
-        places.forEach(place => {
-          let marker = L.marker([place.lat, place.lng]).addTo(this.map);
-          let popup = L.popup({minWidth: 360}).setContent(
-            `<div id="${place.name}" class="juxtapose">
-            </div>
-            <b>${place.name}</b><br>${place.description}
-            <a href="details.html?place=${place.name}" class="details-button">Details</a>`
-          );
-          marker.bindPopup(popup);
-          marker.on('popupopen', () => {
-            new juxtapose.JXSlider('#' + place.name,
-            [
-              {
-                  src: place.img1,
-                  label: place.yearbefore,
-                  credit: 'Image Credit'
-              },
-              {
-                  src: place.img2,
-                  label: place.yearafter,
-                  credit: "Image Credit"
-              }
-            ],
-            {
-              animate: true,
-              showLabels: true,
-              showCredits: true,
-              startingPosition: "50%",
-              makeResponsive: true
+      methods: {
+        handleSidebarChange(value) {
+          this.sidebarOpen = value;
+        },
+        addMarkers(places, markers) {
+          places.forEach(place => {
+            let marker = L.marker([place.lat, place.lng]);
+            let popup = L.popup({minWidth: 360}).setContent(
+              `<div id="${place.name}" class="juxtapose"></div>` +
+              `<b>${place.name}</b><br>${place.description}` +
+              `<a href="details.html?place=${place.name}" class="details-button">Details</a>`
+            );
+            marker.bindPopup(popup);
+            marker.on('popupopen', () => {
+              new juxtapose.JXSlider('#' + place.name,
+                [
+                  { src: place.img1, label: place.yearbefore, credit: 'Image Credit' },
+                  { src: place.img2, label: place.yearafter, credit: 'Image Credit' }
+                ],
+                {
+                  animate: true,
+                  showLabels: true,
+                  showCredits: true,
+                  startingPosition: '50%',
+                  makeResponsive: true
+                });
             });
+            this.clusterGroup.addLayer(marker);
+            markers.push(marker);
           });
-          markers.push(marker);
-        });
-      },
-      toggleMarkers(markers, show) {
-        // Show or hide each marker
-        markers.forEach(marker => {
-          if (show) {
-            marker.addTo(this.map);
-          } else {
-            this.map.removeLayer(marker);
-          }
-        });
+        },
+        toggleMarkers(markers, show) {
+          markers.forEach(marker => {
+            if (show) {
+              this.clusterGroup.addLayer(marker);
+            } else {
+              this.clusterGroup.removeLayer(marker);
+            }
+          });
+        }
       }
-    }
-  });
+    });
   </script>
 </body>
 </html>
