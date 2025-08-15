@@ -128,7 +128,7 @@
             `<div id="${place.name}" class="juxtapose">
             </div>
             <b>${place.name}</b><br>${place.description}
-            <a href="details.html?place=${place.name}" class="details-button">Details</a>`
+            <a href="details.html?place=${encodeURIComponent(place.name)}" class="details-button">Details</a>`
           );
           marker.bindPopup(popup);
           marker.on('popupopen', () => {

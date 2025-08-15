@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Place Details</title>
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.5.2/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue.css">
+  <link rel="stylesheet" href="https://cdn.knightlab.com/libs/juxtapose/latest/css/juxtapose.css">
+  <style>
+    #slider {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+  </style>
+  <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
+  <script src="https://unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue.js"></script>
+  <script src="https://cdn.knightlab.com/libs/juxtapose/latest/js/juxtapose.min.js"></script>
+  <script src="places.js"></script>
+</head>
+<body>
+  <div id="app">
+    <b-container class="py-4" v-if="place">
+      <h1 class="mb-3">{{ place.name }}</h1>
+      <p>{{ place.description }}</p>
+      <div id="slider" class="juxtapose my-4"></div>
+    </b-container>
+    <b-container class="py-4" v-else>
+      <p>Place not found.</p>
+    </b-container>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        place: null
+      },
+      created() {
+        const params = new URLSearchParams(window.location.search);
+        const name = params.get('place');
+        const allPlaces = (window.places1 || []).concat(window.places2 || []);
+        this.place = allPlaces.find(p => p.name === name);
+      },
+      mounted() {
+        if (this.place) {
+          this.$nextTick(() => {
+            new juxtapose.JXSlider('#slider', [
+              {
+                src: this.place.img1,
+                label: this.place.yearbefore,
+                credit: 'Image Credit'
+              },
+              {
+                src: this.place.img2,
+                label: this.place.yearafter,
+                credit: 'Image Credit'
+              }
+            ], {
+              animate: true,
+              showLabels: true,
+              showCredits: true,
+              startingPosition: '50%',
+              makeResponsive: true
+            });
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
